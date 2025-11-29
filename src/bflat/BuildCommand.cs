@@ -47,6 +47,7 @@ internal class BuildCommand : CommandBase
     private static Option<bool> NoStackTraceDataOption = new Option<bool>("--no-stacktrace-data", "Disable support for textual stack traces");
     private static Option<bool> NoGlobalizationOption = new Option<bool>("--no-globalization", "Disable support for globalization (use invariant mode)");
     private static Option<bool> NoExceptionMessagesOption = new Option<bool>("--no-exception-messages", "Disable exception messages");
+    private static Option<bool> EmitEHInfoOption = new Option<bool>("--emit-eh-info", "Emit exception handling tables (for custom runtimes with EH support)");
     private static Option<bool> NoPieOption = new Option<bool>("--no-pie", "Do not generate position independent executable");
 
     private static Option<bool> NoLinkOption = new Option<bool>("-c", "Produce object file, but don't run linker");
@@ -113,6 +114,7 @@ internal class BuildCommand : CommandBase
             NoStackTraceDataOption,
             NoGlobalizationOption,
             NoExceptionMessagesOption,
+            EmitEHInfoOption,
             NoPieOption,
             SeparateSymbolsOption,
             CommonOptions.NoDebugInfoOption,
@@ -326,6 +328,13 @@ internal class BuildCommand : CommandBase
             SettingsTunnel.EmitGSCookies = false;
             //if (debugInfoFormat == 0)
             //    SettingsTunnel.EmitUnwindInfo = false;
+        }
+
+        // Allow explicit override of EH info for custom runtimes with exception handling support
+        bool emitEHInfo = result.GetValueForOption(EmitEHInfoOption);
+        if (emitEHInfo)
+        {
+            SettingsTunnel.EmitEHInfo = true;
         }
 
         bool supportsReflection = !disableReflection && systemModuleName == DefaultSystemModule;
